@@ -21,6 +21,10 @@ BH1750 lightSensor;
 WiFiClient wifiClient;
 PubSubClient mqtt(wifiClient);
 
+// Publish schedule
+unsigned long lastPublish = 0;
+const unsigned long PUBLISH_INTERVAL = 30000;
+
 void connectWiFi() {
     Serial.printf("Connecting to Wifi...\n");
     WiFi.begin(WIFI_SSID, WIFI_PASS);
@@ -60,21 +64,22 @@ void loop() {
     if (!mqtt.connected()) connectBroker();
     mqtt.loop();
 
-    float temp = tempHumSensor.readTemperature();
-    float hum = tempHumSensor.readHumidity();
-    float lux = lightSensor.readLightLevel();
-    int soilStrawberry = analogRead(SOIL_STRAWBERRY);
-    int soilChili = analogRead(SOIL_CHILI);
-    char payload[300];
-    char topic[64];
+    if (millis() - lastPublish >= PUBLISH_INTERVAL) {
+      lastPublish = millis();
+      float temp = tempHumSensor.readTemperature();
+      float hum = tempHumSensor.readHumidity();
+      float lux = lightSensor.readLightLevel();
+      int soilStrawberry = analogRead(SOIL_STRAWBERRY);
+      int soilChili = analogRead(SOIL_CHILI);
+      char payload[300];
+      char topic[64];
 
-    snprintf(payload, sizeof(payload),
-        "{\"device\":\"%s\",\"timestamp\":\"%s\",\"temp\":%.1f,"
-        "\"humidity\":%.1f,\"lux\":%.1f,\"soil_strawberry\":%d,\"soil_chili\":%d}",
-        DEVICE_ID, getTimestamp(), temp, hum, lux, soilStrawberry, soilChili);
+      snprintf(payload, sizeof(payload),
+          "{\"device\":\"%s\",\"timestamp\":\"%s\",\"temp\":%.1f,"
+          "\"humidity\":%.1f,\"lux\":%.1f,\"soil_strawberry\":%d,\"soil_chili\":%d}",
+          DEVICE_ID, getTimestamp(), temp, hum, lux, soilStrawberry, soilChili);
 
-    snprintf(topic, sizeof(topic), "farm/%s/sensors", DEVICE_ID);
-    mqtt.publish(topic, payload);
-
-    delay(30000);
+      snprintf(topic, sizeof(topic), "farm/%s/sensors", DEVICE_ID);
+      mqtt.publish(topic, payload);
+  }
 }
