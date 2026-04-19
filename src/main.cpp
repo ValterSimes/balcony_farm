@@ -4,6 +4,7 @@
 #include <BH1750.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include "date.h"
 
 // Wifi
 const char* wifiSSID = WIFI_SSID;
@@ -54,6 +55,7 @@ void setup() {
     lightSensor.begin();
 
     connectWiFi();
+    syncTime();
     mqtt.setServer(MQTT_HOST, MQTT_PORT);
     connectBroker();
 }
@@ -68,13 +70,13 @@ void loop() {
     float lux = lightSensor.readLightLevel();
     int soilStrawberry = analogRead(SOIL_STRAWBERRY);
     int soilChili = analogRead(SOIL_CHILI);
-    char payload[256];
+    char payload[300];
     char topic[64];
 
     snprintf(payload, sizeof(payload),
-        "{\"device\":\"%s\",\"temp\":%.1f,\"humidity\":%.1f,"
-        "\"lux\":%.1f,\"soil_strawberry\":%d,\"soil_chili\":%d}",
-        DEVICE_ID, temp, hum, lux, soilStrawberry, soilChili);
+        "{\"device\":\"%s\",\"timestamp\":\"%s\",\"temp\":%.1f,"
+        "\"humidity\":%.1f,\"lux\":%.1f,\"soil_strawberry\":%d,\"soil_chili\":%d}",
+        DEVICE_ID, getTimestamp(), temp, hum, lux, soilStrawberry, soilChili);
 
     snprintf(topic, sizeof(topic), "farm/%s/sensors", DEVICE_ID);
     mqtt.publish(topic, payload);
