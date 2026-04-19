@@ -3,11 +3,16 @@
 #include <Wire.h>
 #include <BH1750.h>
 #include <WiFi.h>
+#include <PubSubClient.h>
 
 // Wifi
 const char* wifiSSID = WIFI_SSID;
 const char* wifiPass = WIFI_PASS;
 const char* mqttHost = MQTT_HOST;
+
+// Broker
+const int MQTT_PORT = 1883;
+const char* DEVICE_ID = "mistol_01"; // Mistol is a native tree from home that produces sweet red fruits used for medicine
 
 // Sensors
 #define DHT_PIN D2
@@ -18,6 +23,7 @@ const char* mqttHost = MQTT_HOST;
 DHT tempHumSensor(DHT_PIN, DHT_TYPE);
 BH1750 lightSensor;
 WiFiClient wifiClient;
+PubSubClient mqtt(wifiClient);
 
 void connectWiFi() {
     Serial.printf("Connecting to Wifi...\n");
@@ -29,6 +35,18 @@ void connectWiFi() {
     Serial.printf("Wifi Connected!\n");
 }
 
+void connectBroker() {
+  while (!mqtt.connected()){
+    Serial.printf("Connecting to Broker...\n");
+    if (mqtt.connect(DEVICE_ID)){
+      Serial.printf("Broker Conected!\n");
+    } else {
+      Serial.printf("Failed to connect, retrying.\n");
+      delay(5000);
+    }
+  }
+}
+
 void setup() {
     Serial.begin(115200);
     tempHumSensor.begin();
@@ -36,16 +54,30 @@ void setup() {
     lightSensor.begin();
 
     connectWiFi();
+    mqtt.setServer(MQTT_HOST, MQTT_PORT);
+    connectBroker();
 }
 
 void loop() {
+    if (WiFi.status() != WL_CONNECTED) connectWiFi();
+    if (!mqtt.connected()) connectBroker();
+    mqtt.loop();
+
     float temp = tempHumSensor.readTemperature();
     float hum = tempHumSensor.readHumidity();
     float lux = lightSensor.readLightLevel();
     int soilStrawberry = analogRead(SOIL_STRAWBERRY);
     int soilChili = analogRead(SOIL_CHILI);
+    char payload[256];
+    char topic[64];
 
-    Serial.printf("Temp: %.1fC  Hum: %.1f%%  Lux: %.1f  SoilStrawberry: %d  SoilChili: %d\n", temp, hum, lux, soilStrawberry, soilChili);
+    snprintf(payload, sizeof(payload),
+        "{\"device\":\"%s\",\"temp\":%.1f,\"humidity\":%.1f,"
+        "\"lux\":%.1f,\"soil_strawberry\":%d,\"soil_chili\":%d}",
+        DEVICE_ID, temp, hum, lux, soilStrawberry, soilChili);
 
-    delay(2000);
+    snprintf(topic, sizeof(topic), "farm/%s/sensors", DEVICE_ID);
+    mqtt.publish(topic, payload);
+
+    delay(30000);
 }
