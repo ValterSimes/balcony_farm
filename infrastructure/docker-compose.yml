@@ -1,3 +1,7 @@
+volumes:
+  mosquitto-data:
+  timescaledb-data:
+
 services:
   algarrobo: # Central native tree of the valey 
     image: eclipse-mosquitto:2
@@ -21,6 +25,16 @@ services:
       - timescaledb-data:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-volumes:
-  mosquitto-data:
-  timescaledb-data:
+  telegraf:
+      image: telegraf:latest
+      container_name: telegraf
+      depends_on:
+        - algarrobo
+        - timescaledb
+      environment:
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        POSTGRES_DB: ${POSTGRES_DB}
+      volumes:
+        - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+
