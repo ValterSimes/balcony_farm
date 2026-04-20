@@ -2,3 +2,4 @@
 .vscode/*
 secrets.ini
 infrastructure/.env
+infrastructure/mosquitto/passwords.txt
