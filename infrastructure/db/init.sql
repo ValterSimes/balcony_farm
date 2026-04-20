@@ -1,4 +1,6 @@
-CREATE TABLE sensor_readings (
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+
+CREATE TABLE IF NOT EXISTS sensor_readings (
     time             TIMESTAMPTZ NOT NULL,
     device           TEXT NOT NULL,
     temp             DOUBLE PRECISION,
@@ -8,4 +10,4 @@ CREATE TABLE sensor_readings (
     soil_chili       INTEGER
 );
 
-SELECT create_hypertable('sensor_readings', 'time');
+SELECT create_hypertable('sensor_readings', 'time', if_not_exists => TRUE);
