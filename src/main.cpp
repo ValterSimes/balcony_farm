@@ -38,7 +38,7 @@ void connectWiFi() {
 void connectBroker() {
   while (!mqtt.connected()){
     Serial.printf("Connecting to Broker...\n");
-    if (mqtt.connect(DEVICE_ID)){
+    if (mqtt.connect(DEVICE_ID, MQTT_USER, MQTT_PASS)){
       Serial.printf("Broker Conected!\n");
     } else {
       Serial.printf("Failed to connect, retrying.\n");

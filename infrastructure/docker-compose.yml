@@ -10,6 +10,7 @@ services:
       - "1883:1883"
     volumes:
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/passwords.txt:/mosquitto/config/passwords.txt:ro
       - mosquitto-data:/mosquitto/data
 
   timescaledb:
@@ -28,6 +29,7 @@ services:
   telegraf:
       image: telegraf:1.38.2
       container_name: telegraf
+      restart: unless-stopped
       depends_on:
         - algarrobo
         - timescaledb
@@ -35,6 +37,8 @@ services:
         POSTGRES_USER: ${POSTGRES_USER}
         POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
         POSTGRES_DB: ${POSTGRES_DB}
+        MQTT_USER: ${MQTT_USER}
+        MQTT_PASS: ${MQTT_PASS}
       volumes:
         - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
 
