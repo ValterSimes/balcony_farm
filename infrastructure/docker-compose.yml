@@ -1,0 +1,44 @@
+volumes:
+  mosquitto-data:
+  timescaledb-data:
+
+services:
+  algarrobo: # Central native tree of the valey 
+    image: eclipse-mosquitto:2.0.22
+    container_name: algarrobo
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/passwords.txt:/mosquitto/config/passwords.txt:ro
+      - mosquitto-data:/mosquitto/data
+
+  timescaledb:
+    image: timescale/timescaledb:2.26.3-pg16
+    container_name: timescaledb
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescaledb-data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  telegraf:
+      image: telegraf:1.38.2
+      container_name: telegraf
+      restart: unless-stopped
+      depends_on:
+        - algarrobo
+        - timescaledb
+      environment:
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        POSTGRES_DB: ${POSTGRES_DB}
+        MQTT_USER: ${MQTT_USER}
+        MQTT_PASS: ${MQTT_PASS}
+      volumes:
+        - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+

@@ -21,20 +21,24 @@ BH1750 lightSensor;
 WiFiClient wifiClient;
 PubSubClient mqtt(wifiClient);
 
+// Publish schedule
+unsigned long lastPublish = 0;
+const unsigned long PUBLISH_INTERVAL = 30000;
+
 void connectWiFi() {
-    Serial.printf("Connecting to Wifi...\n");
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.printf("Wifi Connected!\n");
+  Serial.printf("Connecting to Wifi...\n");
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+  }
+  Serial.printf("Wifi Connected!\n");
 }
 
 void connectBroker() {
   while (!mqtt.connected()){
     Serial.printf("Connecting to Broker...\n");
-    if (mqtt.connect(DEVICE_ID)){
+    if (mqtt.connect(DEVICE_ID, MQTT_USER, MQTT_PASS)){
       Serial.printf("Broker Conected!\n");
     } else {
       Serial.printf("Failed to connect, retrying.\n");
@@ -44,22 +48,24 @@ void connectBroker() {
 }
 
 void setup() {
-    Serial.begin(115200);
-    tempHumSensor.begin();
-    Wire.begin();
-    lightSensor.begin();
+  Serial.begin(115200);
+  tempHumSensor.begin();
+  Wire.begin();
+  lightSensor.begin();
 
-    connectWiFi();
-    syncTime();
-    mqtt.setServer(MQTT_HOST, MQTT_PORT);
-    connectBroker();
+  connectWiFi();
+  syncTime();
+  mqtt.setServer(MQTT_HOST, MQTT_PORT);
+  connectBroker();
 }
 
 void loop() {
-    if (WiFi.status() != WL_CONNECTED) connectWiFi();
-    if (!mqtt.connected()) connectBroker();
-    mqtt.loop();
+  if (WiFi.status() != WL_CONNECTED) connectWiFi();
+  if (!mqtt.connected()) connectBroker();
+  mqtt.loop();
 
+  if (millis() - lastPublish >= PUBLISH_INTERVAL) {
+    lastPublish = millis();
     float temp = tempHumSensor.readTemperature();
     float hum = tempHumSensor.readHumidity();
     float lux = lightSensor.readLightLevel();
@@ -75,6 +81,6 @@ void loop() {
 
     snprintf(topic, sizeof(topic), "farm/%s/sensors", DEVICE_ID);
     mqtt.publish(topic, payload);
-
-    delay(30000);
+  }
+  delay(100);
 }
