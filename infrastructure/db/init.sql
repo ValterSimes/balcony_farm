@@ -1,7 +1,7 @@
 CREATE TABLE sensor_readings (
     time             TIMESTAMPTZ NOT NULL,
     device           TEXT NOT NULL,
-    temperature      DOUBLE PRECISION,
+    temp             DOUBLE PRECISION,
     humidity         DOUBLE PRECISION,
     lux              DOUBLE PRECISION,
     soil_strawberry  INTEGER,

@@ -26,13 +26,13 @@ unsigned long lastPublish = 0;
 const unsigned long PUBLISH_INTERVAL = 30000;
 
 void connectWiFi() {
-    Serial.printf("Connecting to Wifi...\n");
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.printf("Wifi Connected!\n");
+  Serial.printf("Connecting to Wifi...\n");
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+  }
+  Serial.printf("Wifi Connected!\n");
 }
 
 void connectBroker() {
@@ -48,38 +48,39 @@ void connectBroker() {
 }
 
 void setup() {
-    Serial.begin(115200);
-    tempHumSensor.begin();
-    Wire.begin();
-    lightSensor.begin();
+  Serial.begin(115200);
+  tempHumSensor.begin();
+  Wire.begin();
+  lightSensor.begin();
 
-    connectWiFi();
-    syncTime();
-    mqtt.setServer(MQTT_HOST, MQTT_PORT);
-    connectBroker();
+  connectWiFi();
+  syncTime();
+  mqtt.setServer(MQTT_HOST, MQTT_PORT);
+  connectBroker();
 }
 
 void loop() {
-    if (WiFi.status() != WL_CONNECTED) connectWiFi();
-    if (!mqtt.connected()) connectBroker();
-    mqtt.loop();
+  if (WiFi.status() != WL_CONNECTED) connectWiFi();
+  if (!mqtt.connected()) connectBroker();
+  mqtt.loop();
 
-    if (millis() - lastPublish >= PUBLISH_INTERVAL) {
-      lastPublish = millis();
-      float temp = tempHumSensor.readTemperature();
-      float hum = tempHumSensor.readHumidity();
-      float lux = lightSensor.readLightLevel();
-      int soilStrawberry = analogRead(SOIL_STRAWBERRY);
-      int soilChili = analogRead(SOIL_CHILI);
-      char payload[300];
-      char topic[64];
+  if (millis() - lastPublish >= PUBLISH_INTERVAL) {
+    lastPublish = millis();
+    float temp = tempHumSensor.readTemperature();
+    float hum = tempHumSensor.readHumidity();
+    float lux = lightSensor.readLightLevel();
+    int soilStrawberry = analogRead(SOIL_STRAWBERRY);
+    int soilChili = analogRead(SOIL_CHILI);
+    char payload[300];
+    char topic[64];
 
-      snprintf(payload, sizeof(payload),
-          "{\"device\":\"%s\",\"timestamp\":\"%s\",\"temp\":%.1f,"
-          "\"humidity\":%.1f,\"lux\":%.1f,\"soil_strawberry\":%d,\"soil_chili\":%d}",
-          DEVICE_ID, getTimestamp(), temp, hum, lux, soilStrawberry, soilChili);
+    snprintf(payload, sizeof(payload),
+        "{\"device\":\"%s\",\"timestamp\":\"%s\",\"temp\":%.1f,"
+        "\"humidity\":%.1f,\"lux\":%.1f,\"soil_strawberry\":%d,\"soil_chili\":%d}",
+        DEVICE_ID, getTimestamp(), temp, hum, lux, soilStrawberry, soilChili);
 
-      snprintf(topic, sizeof(topic), "farm/%s/sensors", DEVICE_ID);
-      mqtt.publish(topic, payload);
+    snprintf(topic, sizeof(topic), "farm/%s/sensors", DEVICE_ID);
+    mqtt.publish(topic, payload);
   }
+  delay(100);
 }
