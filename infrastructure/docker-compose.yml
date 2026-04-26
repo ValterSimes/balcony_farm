@@ -1,6 +1,7 @@
 volumes:
   mosquitto-data:
   timescaledb-data:
+  grafana-data:
 
 services:
   algarrobo: # Central native tree of the valey 
@@ -42,3 +43,15 @@ services:
       volumes:
         - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
 
+  grafana:
+    image: grafana/grafana:11.6.0
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+    depends_on:
+      - timescaledb
+    volumes:
+      - grafana-data:/var/lib/grafana
