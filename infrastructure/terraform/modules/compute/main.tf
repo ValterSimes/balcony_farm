@@ -26,6 +26,10 @@ resource "aws_instance" "server_algarrobo" {
   primary_network_interface {
     network_interface_id = var.network_interface_id
   }
+  root_block_device {
+    volume_size = 30
+    volume_type = "gp2"
+  }
   tags = {
     Terraform = true
     Name = "${var.name_prefix}_instance"
