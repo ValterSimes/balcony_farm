@@ -12,6 +12,20 @@ module "networking" {
         to_port           = 22          
         protocol          = "tcp"       
         cidr_blocks       = [var.ssh_allowlist]
+    },
+    {
+        type      = "ingress"
+        from_port = 1883
+        to_port   = 1883
+        protocol  = "tcp"
+        cidr_blocks = [var.ssh_allowlist]
+      },
+    {
+    type      = "egress"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
     }
   ]
 }
