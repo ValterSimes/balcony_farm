@@ -15,6 +15,8 @@ Collect data on the environmental conditions these plants are exposed, visualize
 
 Arduino ESP32 + Sensors -> WiFi -> Mosquitto (MQTT) -> Telegraf -> TimescaleDB -> Grafana
 
+[![Architecture diagram](docs/Balcony-farm.png)](docs/Balcony-farm.png)
+
 ### Hardware
 
 - Arduino ABX00083 Board Nano ESP32
@@ -22,6 +24,10 @@ Arduino ESP32 + Sensors -> WiFi -> Mosquitto (MQTT) -> Telegraf -> TimescaleDB -
 - Purecrea DHT22 Temperature and Humidity Sensor
 - 2x Purecrea Capacitive soil moisture sensor V1.2
 - 10.000 mAh Battery 
+
+![ESP32 with sensors](docs/esp32-setup.jpg)
+
+![Breadboard wiring](docs/breadboard-wiring.jpg)
 
 ### Software stack
 
@@ -35,12 +41,12 @@ Arduino ESP32 + Sensors -> WiFi -> Mosquitto (MQTT) -> Telegraf -> TimescaleDB -
 ## Roadmap
 
 - Initial hardware assembly + sensor validation. Done.
-- WiFi + MQTT publishing from ESP32
-- Docker Compose stack (Mosquitto -> Telegraf -> TimescaleDB -> Grafana)
-- Grafana dashboards with per plant alert thresholds
+- WiFi + MQTT publishing from ESP32. Done.
+- Docker Compose stack (Mosquitto -> Telegraf -> TimescaleDB -> Grafana). Done.
+- Grafana dashboards with per plant alert thresholds. In progress.
 - GitHub Actions CI/CD (for Docker builds)
-- IaC for cloud hosting Mosquitto (24/7 log capture)
-- TLS + auth for MQTT broker exposed to internet
+- IaC for cloud hosting Mosquitto (24/7 log capture). Done.
+- TLS + auth for MQTT broker exposed to internet. Done.
 - Migrate to K3s with Helm charts
 - Feed battery with solar power
 - Trigger automated watering for defined humidity thresholds
