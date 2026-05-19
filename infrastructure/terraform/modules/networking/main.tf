@@ -1,47 +1,13 @@
 resource "aws_vpc" "vpc_algarrobo" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = var.cidr_block
 
   tags = {
     Name = "${var.name_prefix}_vpc"
   }
 }
 
-resource "aws_subnet" "subnet_algarrobo" {
-  vpc_id     = aws_vpc.vpc_algarrobo.id
-  cidr_block = "10.0.1.0/24"
-}
-
-resource "aws_network_interface" "ni_algarrobo" {
-  subnet_id       = aws_subnet.subnet_algarrobo.id
-  security_groups = [aws_security_group.sg_algarrobo.id]
-
-  tags = {
-    Name = "${var.name_prefix}_primary_network_interface"
-  }
-}
-
-resource "aws_security_group" "sg_algarrobo" {
-  description = "Allow algarrobo access"
-  name        = "${var.name_prefix}_sg"
-  vpc_id      = aws_vpc.vpc_algarrobo.id
-
-  tags = {
-    Name = "${var.name_prefix}_allow_ssh"
-  }
-}
-
-resource "aws_security_group_rule" "nsg_algarrobo" {
-  count             = length(var.sg_rules)
-  type              = var.sg_rules[count.index].type
-  from_port         = var.sg_rules[count.index].from_port
-  to_port           = var.sg_rules[count.index].to_port
-  protocol          = var.sg_rules[count.index].protocol
-  cidr_blocks       = var.sg_rules[count.index].cidr_blocks
-  security_group_id = aws_security_group.sg_algarrobo.id
-}
-
 resource "aws_eip" "eip_algarrobo" {
-  network_interface = aws_network_interface.ni_algarrobo.id
+  network_interface = module.public_subnet.network_interface_id
   domain            = "vpc"
   tags = {
     Name = "${var.name_prefix}_eip"
@@ -55,20 +21,88 @@ resource "aws_internet_gateway" "igw" {
     Name = "${var.name_prefix}_igw"
   }
 }
-resource "aws_route_table" "rt_algarrobo" {
-  vpc_id = aws_vpc.vpc_algarrobo.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
+resource "aws_eip" "algarrobo_nat_eip" {
+  count  = var.enable_private_subnet ? 1 : 0
+  domain = "vpc"
 
   tags = {
-    Name = "${var.name_prefix}_rt"
+    Name = "${var.name_prefix}_nat_eip"
   }
 }
 
-resource "aws_route_table_association" "rta_algarrobo" {
-  subnet_id      = aws_subnet.subnet_algarrobo.id
-  route_table_id = aws_route_table.rt_algarrobo.id
+resource "aws_nat_gateway" "algarrobo_nat_gw" {
+  count         = var.enable_private_subnet ? 1 : 0
+  allocation_id = aws_eip.algarrobo_nat_eip[0].id
+  subnet_id     = module.public_subnet.subnet_id
+
+  tags = {
+    Name = "${var.name_prefix}_nat_gw"
+  }
+}
+
+module "public_subnet" {
+  source            = "../../resources/aws_subnet"
+  vpc_id            = aws_vpc.vpc_algarrobo.id
+  vpc_cidr          = aws_vpc.vpc_algarrobo.cidr_block
+  subnet_index      = 0
+  name_prefix       = "${var.name_prefix}_public"
+  gateway_id        = aws_internet_gateway.igw.id
+  security_group_id = module.public_security_group.id
+}
+
+module "private_subnet" {
+  count             = var.enable_private_subnet ? 1 : 0
+  source            = "../../resources/aws_subnet"
+  vpc_id            = aws_vpc.vpc_algarrobo.id
+  vpc_cidr          = aws_vpc.vpc_algarrobo.cidr_block
+  subnet_index      = 1
+  name_prefix       = "${var.name_prefix}_private"
+  gateway_id        = aws_nat_gateway.algarrobo_nat_gw[0].id
+  security_group_id = module.private_security_group.id
+}
+
+module "public_security_group" {
+  source = "../../resources/aws_security_group"
+  name_prefix = var.name_prefix
+  vpc_id = aws_vpc.vpc_algarrobo.id
+  sg_rules = var.public_sg_rules
+  description = "NLB and bastion access"
+}
+
+module "private_security_group" {
+  source = "../../resources/aws_security_group"
+  name_prefix = var.name_prefix
+  vpc_id = aws_vpc.vpc_algarrobo.id
+  sg_rules = [
+    {
+      type        = "ingress"
+      from_port   = 1883
+      to_port     = 1883
+      protocol    = "tcp"
+      cidr_blocks = [module.public_subnet.cidr_block]
+    },
+    {
+      type        = "ingress"
+      from_port   = 3000
+      to_port     = 3000
+      protocol    = "tcp"
+      cidr_blocks = [module.public_subnet.cidr_block]
+    },
+    {
+      type        = "ingress"
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = [module.public_subnet.cidr_block]
+    },
+    {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  ]
+  description = "Algarrobo access"  
 }

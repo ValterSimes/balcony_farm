@@ -1,4 +1,4 @@
-variable "sg_rules" {
+variable "public_sg_rules" {
   type = list(object({
     type        = string
     from_port   = number
@@ -10,4 +10,12 @@ variable "sg_rules" {
 
 variable "name_prefix" {
   type = string
+}
+
+variable "cidr_block" {
+  type = string
+}
+
+variable "enable_private_subnet" {
+  type = bool
 }
