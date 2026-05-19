@@ -2,7 +2,7 @@ locals {
   subnet_cidr = cidrsubnet(var.vpc_cidr, 8, var.subnet_index + 1)
 }
 
-resource "aws_subnet" "subnet_algarrobo" {  
+resource "aws_subnet" "subnet_algarrobo" {
   vpc_id     = var.vpc_id
   cidr_block = local.subnet_cidr
   tags = {

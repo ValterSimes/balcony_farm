@@ -63,17 +63,17 @@ module "private_subnet" {
 }
 
 module "public_security_group" {
-  source = "../../resources/aws_security_group"
+  source      = "../../resources/aws_security_group"
   name_prefix = var.name_prefix
-  vpc_id = aws_vpc.vpc_algarrobo.id
-  sg_rules = var.public_sg_rules
+  vpc_id      = aws_vpc.vpc_algarrobo.id
+  sg_rules    = var.public_sg_rules
   description = "NLB and bastion access"
 }
 
 module "private_security_group" {
-  source = "../../resources/aws_security_group"
+  source      = "../../resources/aws_security_group"
   name_prefix = var.name_prefix
-  vpc_id = aws_vpc.vpc_algarrobo.id
+  vpc_id      = aws_vpc.vpc_algarrobo.id
   sg_rules = [
     {
       type        = "ingress"
@@ -104,5 +104,5 @@ module "private_security_group" {
       cidr_blocks = ["0.0.0.0/0"]
     }
   ]
-  description = "Algarrobo access"  
+  description = "Algarrobo access"
 }

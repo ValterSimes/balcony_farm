@@ -25,9 +25,13 @@ Arduino ESP32 + Sensors -> WiFi -> Mosquitto (MQTT) -> Telegraf -> TimescaleDB -
 - 2x Purecrea Capacitive soil moisture sensor V1.2
 - 10.000 mAh Battery 
 
-![ESP32 with sensors](docs/esp32-setup.jpg)
+Mistol_01 in all its glory with Ikea tupper cover case
 
 ![Breadboard wiring](docs/breadboard-wiring.jpg)
+
+Balcony farm with Mistol_01 installed
+
+![ESP32 with sensors](docs/esp32-setup.jpg)
 
 ### Software stack
 
