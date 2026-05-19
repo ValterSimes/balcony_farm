@@ -22,7 +22,7 @@ resource "aws_key_pair" "key_algarrobo" {
 resource "aws_instance" "server_algarrobo" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.micro"
-  key_name = aws_key_pair.key_algarrobo.key_name
+  key_name      = aws_key_pair.key_algarrobo.key_name
   primary_network_interface {
     network_interface_id = var.network_interface_id
   }
@@ -32,6 +32,6 @@ resource "aws_instance" "server_algarrobo" {
   }
   tags = {
     Terraform = true
-    Name = "${var.name_prefix}_instance"
+    Name      = "${var.name_prefix}_instance"
   }
 }

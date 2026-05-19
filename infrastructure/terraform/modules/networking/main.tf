@@ -7,13 +7,13 @@ resource "aws_vpc" "vpc_algarrobo" {
 }
 
 resource "aws_subnet" "subnet_algarrobo" {
-  vpc_id              = aws_vpc.vpc_algarrobo.id
+  vpc_id     = aws_vpc.vpc_algarrobo.id
   cidr_block = "10.0.1.0/24"
 }
 
 resource "aws_network_interface" "ni_algarrobo" {
-  subnet_id   = aws_subnet.subnet_algarrobo.id
-  security_groups = [ aws_security_group.sg_algarrobo.id ]
+  subnet_id       = aws_subnet.subnet_algarrobo.id
+  security_groups = [aws_security_group.sg_algarrobo.id]
 
   tags = {
     Name = "${var.name_prefix}_primary_network_interface"
@@ -31,18 +31,18 @@ resource "aws_security_group" "sg_algarrobo" {
 }
 
 resource "aws_security_group_rule" "nsg_algarrobo" {
-  count = length(var.sg_rules)
-  type              = var.sg_rules[count.index].type 
-  from_port         = var.sg_rules[count.index].from_port          
-  to_port           = var.sg_rules[count.index].to_port          
-  protocol          = var.sg_rules[count.index].protocol       
+  count             = length(var.sg_rules)
+  type              = var.sg_rules[count.index].type
+  from_port         = var.sg_rules[count.index].from_port
+  to_port           = var.sg_rules[count.index].to_port
+  protocol          = var.sg_rules[count.index].protocol
   cidr_blocks       = var.sg_rules[count.index].cidr_blocks
   security_group_id = aws_security_group.sg_algarrobo.id
 }
 
 resource "aws_eip" "eip_algarrobo" {
   network_interface = aws_network_interface.ni_algarrobo.id
-  domain   = "vpc"
+  domain            = "vpc"
   tags = {
     Name = "${var.name_prefix}_eip"
   }
