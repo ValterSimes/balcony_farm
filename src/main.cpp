@@ -41,7 +41,7 @@ void connectBroker() {
     if (mqtt.connect(DEVICE_ID, MQTT_USER, MQTT_PASS)){
       Serial.printf("Broker Conected!\n");
     } else {
-      Serial.printf("Failed to connect, retrying.\n");
+      Serial.printf("Failed to connect, rc=%d, retrying.\n", mqtt.state());
       delay(5000);
     }
   }
