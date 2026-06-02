@@ -7,6 +7,7 @@ module "networking" {
   name_prefix           = local.name_prefix
   cidr_block            = var.vpc_cidr_block
   enable_private_subnet = var.enable_private_subnet
+  aws_instance_id = module.compute.aws_instance_id
   public_sg_rules = [
     {
       type        = "ingress"

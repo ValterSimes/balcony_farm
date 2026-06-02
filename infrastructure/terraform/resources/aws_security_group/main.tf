@@ -2,10 +2,6 @@ resource "aws_security_group" "sg_algarrobo" {
   description = var.description
   name        = "${var.name_prefix}_sg"
   vpc_id      = var.vpc_id
-
-  tags = {
-    Name = "${var.name_prefix}_allow_ssh"
-  }
 }
 
 resource "aws_security_group_rule" "nsg_algarrobo" {

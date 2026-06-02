@@ -41,6 +41,26 @@ resource "aws_nat_gateway" "algarrobo_nat_gw" {
   }
 }
 
+resource "aws_acm_certificate" "algarrobo" {
+  count         = var.enable_private_subnet ? 1 : 0
+  domain_name       = "farm.thirtyeight.com"
+  validation_method = "DNS"
+
+  tags = {
+    Name = "algarrobo_cert"
+  }
+}
+
+module "nlb" {
+  count         = var.enable_private_subnet ? 1 : 0
+  source              = "../../resources/aws_nlb"
+  name_prefix         = var.name_prefix
+  vpc_id              = aws_vpc.vpc_algarrobo.id
+  public_subnet_id    = module.public_subnet.subnet_id
+  target_instance_id  = var.aws_instance_id
+  certificate_arn     = aws_acm_certificate.algarrobo[0].arn
+}
+
 module "public_subnet" {
   source            = "../../resources/aws_subnet"
   vpc_id            = aws_vpc.vpc_algarrobo.id
@@ -64,7 +84,7 @@ module "private_subnet" {
 
 module "public_security_group" {
   source      = "../../resources/aws_security_group"
-  name_prefix = var.name_prefix
+  name_prefix = "${var.name_prefix}-public"
   vpc_id      = aws_vpc.vpc_algarrobo.id
   sg_rules    = var.public_sg_rules
   description = "NLB and bastion access"
@@ -72,7 +92,7 @@ module "public_security_group" {
 
 module "private_security_group" {
   source      = "../../resources/aws_security_group"
-  name_prefix = var.name_prefix
+  name_prefix = "${var.name_prefix}-private"
   vpc_id      = aws_vpc.vpc_algarrobo.id
   sg_rules = [
     {

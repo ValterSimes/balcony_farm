@@ -19,3 +19,7 @@ variable "cidr_block" {
 variable "enable_private_subnet" {
   type = bool
 }
+
+variable "aws_instance_id" {
+  type = string
+}
