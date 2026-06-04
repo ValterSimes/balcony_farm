@@ -23,3 +23,7 @@ variable "enable_private_subnet" {
 variable "aws_instance_id" {
   type = string
 }
+
+variable "dns_name" {
+  type = string
+}

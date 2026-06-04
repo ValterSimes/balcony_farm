@@ -43,12 +43,37 @@ resource "aws_nat_gateway" "algarrobo_nat_gw" {
 
 resource "aws_acm_certificate" "algarrobo" {
   count         = var.enable_private_subnet ? 1 : 0
-  domain_name       = "farm.thirtyeight.com"
+  domain_name       = "algarrobo.${var.dns_name}"
   validation_method = "DNS"
 
   tags = {
     Name = "algarrobo_cert"
   }
+}
+
+resource "aws_route53_zone" "zone" {
+  name = var.dns_name
+}
+
+resource "aws_route53_record" "dns_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.algarrobo[0].domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      type   = dvo.resource_record_type
+      record = dvo.resource_record_value
+    }
+  }
+
+  zone_id = aws_route53_zone.zone.zone_id
+  name    = each.value.name
+  type    = each.value.type
+  records = [each.value.record]
+  ttl     = 60
+}
+
+resource "aws_acm_certificate_validation" "algarrobo" {
+  certificate_arn         = aws_acm_certificate.algarrobo[0].arn
+  validation_record_fqdns = [for record in aws_route53_record.dns_validation : record.fqdn]
 }
 
 module "nlb" {
