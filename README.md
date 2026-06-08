@@ -15,7 +15,7 @@ Collect data on the environmental conditions these plants are exposed, visualize
 
 Arduino ESP32 + Sensors -> WiFi -> Mosquitto (MQTT) -> Telegraf -> TimescaleDB -> Grafana
 
-[![Architecture diagram](docs/Balcony-farm.png)](docs/Balcony-farm.png)
+[![Architecture diagram](docs/Balcony-farm.jpeg)](docs/Balcony-farm.jpeg)
 
 ### Hardware
 
@@ -25,11 +25,11 @@ Arduino ESP32 + Sensors -> WiFi -> Mosquitto (MQTT) -> Telegraf -> TimescaleDB -
 - 2x Purecrea Capacitive soil moisture sensor V1.2
 - 10.000 mAh Battery 
 
-Mistol_01 in all its glory with Ikea tupper cover case, it can be then hermetically sealed against weather and ants...
+Yuyo_01 in all its glory with Ikea tupper cover case, it can be then hermetically sealed against weather and ants...
 
 ![Breadboard wiring](docs/breadboard-wiring.jpg)
 
-Balcony farm with Mistol_01 installed
+Balcony farm with yuyo_01 installed
 
 ![ESP32 with sensors](docs/esp32-setup.jpg)
 
