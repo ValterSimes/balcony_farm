@@ -41,7 +41,7 @@ resource "aws_nat_gateway" "algarrobo_nat_gw" {
   }
 }
 
-resource "aws_acm_certificate" "algarrobo_cert" {
+resource "aws_acm_certificate" "algarrobo" {
   count         = var.enable_private_subnet ? 1 : 0
   domain_name       = "*.${var.dns_name}"
   validation_method = "DNS"
@@ -51,14 +51,14 @@ resource "aws_acm_certificate" "algarrobo_cert" {
   }
 }
 
-resource "aws_route53_zone" "zone" {
+data "aws_route53_zone" "zone" {
   name = var.dns_name
 }
 
 resource "aws_route53_record" "dns_validation" {
   for_each = var.enable_private_subnet ? toset([var.dns_name]) : toset([])
 
-  zone_id = aws_route53_zone.zone.zone_id
+  zone_id = data.aws_route53_zone.zone.zone_id
   name    = tolist(aws_acm_certificate.algarrobo[0].domain_validation_options)[0].resource_record_name
   type    = tolist(aws_acm_certificate.algarrobo[0].domain_validation_options)[0].resource_record_type
   records = [tolist(aws_acm_certificate.algarrobo[0].domain_validation_options)[0].resource_record_value]
@@ -66,7 +66,7 @@ resource "aws_route53_record" "dns_validation" {
 }
 
 resource "aws_route53_record" "algarrobo" {
-  zone_id = aws_route53_zone.zone.zone_id
+  zone_id = data.aws_route53_zone.zone.zone_id
   name    = "algarrobo.${var.dns_name}"
   type    = "A"
 
