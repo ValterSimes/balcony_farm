@@ -16,14 +16,14 @@ module "networking" {
       from_port   = 8883
       to_port     = 8883
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = [var.ssh_allowlist]
     },
     {
       type        = "ingress"
       from_port   = 443
       to_port     = 443
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = [var.ssh_allowlist]
     },
     {
       type        = "ingress"

@@ -66,6 +66,7 @@ resource "aws_route53_record" "dns_validation" {
 }
 
 resource "aws_route53_record" "algarrobo" {
+  count = var.enable_private_subnet ? 1 : 0
   zone_id = data.aws_route53_zone.zone.zone_id
   name    = "algarrobo.${var.dns_name}"
   type    = "A"
