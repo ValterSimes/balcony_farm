@@ -79,6 +79,7 @@ resource "aws_route53_record" "algarrobo" {
 }
 
 resource "aws_acm_certificate_validation" "algarrobo" {
+  count = var.enable_private_subnet ? 1 : 0
   certificate_arn         = aws_acm_certificate.algarrobo[0].arn
   validation_record_fqdns = [for record in aws_route53_record.dns_validation : record.fqdn]
 }
