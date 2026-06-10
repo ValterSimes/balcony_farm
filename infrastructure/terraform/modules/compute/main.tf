@@ -20,7 +20,7 @@ resource "aws_key_pair" "key_algarrobo" {
 }
 
 resource "aws_key_pair" "bastion_key_algarrobo" {
-  count         = var.enable_private_subnet ? 1 : 0
+  count      = var.enable_private_subnet ? 1 : 0
   key_name   = "${var.name_prefix}-bastion-key"
   public_key = var.bastion_public_key
 }

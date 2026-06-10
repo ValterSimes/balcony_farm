@@ -42,7 +42,7 @@ resource "aws_nat_gateway" "algarrobo_nat_gw" {
 }
 
 resource "aws_acm_certificate" "algarrobo" {
-  count         = var.enable_private_subnet ? 1 : 0
+  count             = var.enable_private_subnet ? 1 : 0
   domain_name       = "*.${var.dns_name}"
   validation_method = "DNS"
 
@@ -66,7 +66,7 @@ resource "aws_route53_record" "dns_validation" {
 }
 
 resource "aws_route53_record" "algarrobo" {
-  count = var.enable_private_subnet ? 1 : 0
+  count   = var.enable_private_subnet ? 1 : 0
   zone_id = data.aws_route53_zone.zone.zone_id
   name    = "algarrobo.${var.dns_name}"
   type    = "A"
@@ -79,25 +79,25 @@ resource "aws_route53_record" "algarrobo" {
 }
 
 resource "aws_acm_certificate_validation" "algarrobo" {
-  count = var.enable_private_subnet ? 1 : 0
+  count                   = var.enable_private_subnet ? 1 : 0
   certificate_arn         = aws_acm_certificate.algarrobo[0].arn
   validation_record_fqdns = [for record in aws_route53_record.dns_validation : record.fqdn]
 }
 
 module "nlb" {
-  count         = var.enable_private_subnet ? 1 : 0
-  source              = "../../resources/aws_nlb"
-  name_prefix         = var.name_prefix
-  vpc_id              = aws_vpc.vpc_algarrobo.id
-  public_subnet_id    = module.public_subnet.subnet_id
-  target_instance_id  = var.aws_instance_id
-  certificate_arn     = aws_acm_certificate.algarrobo[0].arn
-  security_group_id = module.public_security_group.id
+  count              = var.enable_private_subnet ? 1 : 0
+  source             = "../../resources/aws_nlb"
+  name_prefix        = var.name_prefix
+  vpc_id             = aws_vpc.vpc_algarrobo.id
+  public_subnet_id   = module.public_subnet.subnet_id
+  target_instance_id = var.aws_instance_id
+  certificate_arn    = aws_acm_certificate.algarrobo[0].arn
+  security_group_id  = module.public_security_group.id
 }
 
 module "public_subnet" {
   source            = "../../resources/aws_subnet"
-  is_public = true
+  is_public         = true
   vpc_id            = aws_vpc.vpc_algarrobo.id
   vpc_cidr          = aws_vpc.vpc_algarrobo.cidr_block
   subnet_index      = 0
@@ -109,7 +109,7 @@ module "public_subnet" {
 
 module "private_subnet" {
   count             = var.enable_private_subnet ? 1 : 0
-  is_public = false
+  is_public         = false
   source            = "../../resources/aws_subnet"
   vpc_id            = aws_vpc.vpc_algarrobo.id
   vpc_cidr          = aws_vpc.vpc_algarrobo.cidr_block
