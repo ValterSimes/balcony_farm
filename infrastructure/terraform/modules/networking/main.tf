@@ -97,6 +97,7 @@ module "nlb" {
 
 module "public_subnet" {
   source            = "../../resources/aws_subnet"
+  is_public = true
   vpc_id            = aws_vpc.vpc_algarrobo.id
   vpc_cidr          = aws_vpc.vpc_algarrobo.cidr_block
   subnet_index      = 0
@@ -108,6 +109,7 @@ module "public_subnet" {
 
 module "private_subnet" {
   count             = var.enable_private_subnet ? 1 : 0
+  is_public = false
   source            = "../../resources/aws_subnet"
   vpc_id            = aws_vpc.vpc_algarrobo.id
   vpc_cidr          = aws_vpc.vpc_algarrobo.cidr_block

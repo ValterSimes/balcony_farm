@@ -29,8 +29,9 @@ resource "aws_route_table" "rt_algarrobo" {
   vpc_id = var.vpc_id
 
   route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = var.gateway_id
+    cidr_block     = "0.0.0.0/0"
+    gateway_id     = var.is_public ? var.gateway_id : null
+    nat_gateway_id = var.is_public ? null : var.gateway_id
   }
 
   tags = {

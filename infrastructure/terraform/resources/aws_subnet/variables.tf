@@ -25,3 +25,7 @@ variable "security_group_id" {
 variable "availability_zone" {
   type = string
 }
+
+variable "is_public" {
+  type = bool
+}
