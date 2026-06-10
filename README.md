@@ -55,4 +55,5 @@ Balcony farm with yuyo_01 installed
 - Feed battery with solar power
 - Trigger automated watering for defined humidity thresholds
 - Camera module to track plant growth progress
+- Expand metrics captured, like soil pH
 - More to add whenever I have more ideas

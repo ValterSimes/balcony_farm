@@ -9,6 +9,7 @@ module "networking" {
   enable_private_subnet = var.enable_private_subnet
   aws_instance_id       = module.compute.aws_instance_id
   dns_name              = var.dns_name
+  availability_zone = var.availability_zone
   public_sg_rules = [
     {
       type        = "ingress"

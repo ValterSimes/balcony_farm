@@ -21,3 +21,7 @@ variable "gateway_id" {
 variable "security_group_id" {
   type = string
 }
+
+variable "availability_zone" {
+  type = string
+}

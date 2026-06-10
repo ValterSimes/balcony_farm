@@ -23,3 +23,7 @@ variable "enable_private_subnet" {
 variable "dns_name" {
   type = string
 }
+
+variable "availability_zone" {
+  type = string
+}

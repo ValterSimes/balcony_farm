@@ -1,7 +1,9 @@
-resource "aws_lb" "this" {
+resource "aws_lb" "nlb" {
   name               = "${var.name_prefix}-nlb"
   internal           = false
   load_balancer_type = "network"
+  enable_cross_zone_load_balancing = true
+  security_groups = [var.security_group_id]
 
   subnet_mapping {
     subnet_id = var.public_subnet_id
@@ -18,7 +20,8 @@ resource "aws_lb_target_group" "mqtt" {
   port     = 1883
   protocol = "TCP"
   vpc_id   = var.vpc_id
-
+  preserve_client_ip  = false
+  
   health_check {
     protocol = "TCP"
     port     = 1883
@@ -30,7 +33,7 @@ resource "aws_lb_target_group" "mqtt" {
 }
 
 resource "aws_lb_listener" "mqtts" {
-  load_balancer_arn = aws_lb.this.arn
+  load_balancer_arn = aws_lb.nlb.arn
   port              = 8883
   protocol          = "TLS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
@@ -54,6 +57,7 @@ resource "aws_lb_target_group" "grafana" {
   port     = 3000
   protocol = "TCP"
   vpc_id   = var.vpc_id
+  preserve_client_ip  = false
 
   health_check {
     protocol = "TCP"
@@ -66,7 +70,7 @@ resource "aws_lb_target_group" "grafana" {
 }
 
 resource "aws_lb_listener" "https" {
-  load_balancer_arn = aws_lb.this.arn
+  load_balancer_arn = aws_lb.nlb.arn
   port              = 443
   protocol          = "TLS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"

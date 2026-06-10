@@ -18,3 +18,7 @@ variable "certificate_arn" {
   type        = string
   description = "ACM certificate ARN for TLS termination"
 }
+
+variable "security_group_id" {
+  type = string
+}

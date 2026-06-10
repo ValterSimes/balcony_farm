@@ -5,6 +5,7 @@ locals {
 resource "aws_subnet" "subnet_algarrobo" {
   vpc_id     = var.vpc_id
   cidr_block = local.subnet_cidr
+  availability_zone = var.availability_zone
   tags = {
     Name = "${var.name_prefix}_subnet"
   }

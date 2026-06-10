@@ -41,9 +41,9 @@ resource "aws_nat_gateway" "algarrobo_nat_gw" {
   }
 }
 
-resource "aws_acm_certificate" "algarrobo" {
+resource "aws_acm_certificate" "algarrobo_cert" {
   count         = var.enable_private_subnet ? 1 : 0
-  domain_name       = "algarrobo.${var.dns_name}"
+  domain_name       = "*.${var.dns_name}"
   validation_method = "DNS"
 
   tags = {
@@ -56,19 +56,25 @@ resource "aws_route53_zone" "zone" {
 }
 
 resource "aws_route53_record" "dns_validation" {
-  for_each = {
-    for dvo in aws_acm_certificate.algarrobo[0].domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      type   = dvo.resource_record_type
-      record = dvo.resource_record_value
-    }
-  }
+  for_each = var.enable_private_subnet ? toset([var.dns_name]) : toset([])
 
   zone_id = aws_route53_zone.zone.zone_id
-  name    = each.value.name
-  type    = each.value.type
-  records = [each.value.record]
+  name    = tolist(aws_acm_certificate.algarrobo[0].domain_validation_options)[0].resource_record_name
+  type    = tolist(aws_acm_certificate.algarrobo[0].domain_validation_options)[0].resource_record_type
+  records = [tolist(aws_acm_certificate.algarrobo[0].domain_validation_options)[0].resource_record_value]
   ttl     = 60
+}
+
+resource "aws_route53_record" "algarrobo" {
+  zone_id = aws_route53_zone.zone.zone_id
+  name    = "algarrobo.${var.dns_name}"
+  type    = "A"
+
+  alias {
+    name                   = module.nlb[0].dns_name
+    zone_id                = module.nlb[0].zone_id
+    evaluate_target_health = true
+  }
 }
 
 resource "aws_acm_certificate_validation" "algarrobo" {
@@ -84,6 +90,7 @@ module "nlb" {
   public_subnet_id    = module.public_subnet.subnet_id
   target_instance_id  = var.aws_instance_id
   certificate_arn     = aws_acm_certificate.algarrobo[0].arn
+  security_group_id = module.public_security_group.id
 }
 
 module "public_subnet" {
@@ -91,6 +98,7 @@ module "public_subnet" {
   vpc_id            = aws_vpc.vpc_algarrobo.id
   vpc_cidr          = aws_vpc.vpc_algarrobo.cidr_block
   subnet_index      = 0
+  availability_zone = var.availability_zone
   name_prefix       = "${var.name_prefix}_public"
   gateway_id        = aws_internet_gateway.igw.id
   security_group_id = module.public_security_group.id
@@ -102,6 +110,7 @@ module "private_subnet" {
   vpc_id            = aws_vpc.vpc_algarrobo.id
   vpc_cidr          = aws_vpc.vpc_algarrobo.cidr_block
   subnet_index      = 1
+  availability_zone = var.availability_zone
   name_prefix       = "${var.name_prefix}_private"
   gateway_id        = aws_nat_gateway.algarrobo_nat_gw[0].id
   security_group_id = module.private_security_group.id
