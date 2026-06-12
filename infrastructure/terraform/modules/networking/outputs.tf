@@ -7,9 +7,9 @@ output "public_network_interface_id" {
 }
 
 output "mqtt_target_group_arn" {
-  value = module.nlb[0].mqtt_target_group_arn
+  value = var.enable_private_subnet ? module.nlb[0].mqtt_target_group_arn : null
 }
 
 output "grafana_target_group_arn" {
-  value = module.nlb[0].grafana_target_group_arn
+  value = var.enable_private_subnet ? module.nlb[0].grafana_target_group_arn : null
 }
