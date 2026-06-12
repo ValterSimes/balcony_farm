@@ -1,5 +1,29 @@
+terraform {
+    required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+  }
+}
+
 locals {
   name_prefix = "algarrobo"
+}
+
+resource "aws_lb_target_group_attachment" "grafana" {
+  count                   = var.enable_private_subnet ? 1 : 0
+  target_group_arn = module.networking.grafana_target_group_arn
+  target_id        = module.compute.aws_instance_id
+  port             = 3000
+}
+
+
+resource "aws_lb_target_group_attachment" "mqtt" {
+  count                   = var.enable_private_subnet ? 1 : 0
+  target_group_arn = module.networking.mqtt_target_group_arn
+  target_id        = module.compute.aws_instance_id
+  port             = 1883
 }
 
 module "networking" {
@@ -7,7 +31,6 @@ module "networking" {
   name_prefix           = local.name_prefix
   cidr_block            = var.vpc_cidr_block
   enable_private_subnet = var.enable_private_subnet
-  aws_instance_id       = module.compute.aws_instance_id
   dns_name              = var.dns_name
   availability_zone     = var.availability_zone
   public_sg_rules = [
