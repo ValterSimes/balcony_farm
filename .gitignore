@@ -3,3 +3,10 @@
 secrets.ini
 infrastructure/.env
 infrastructure/mosquitto/passwords.txt
+providers.tf
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+.terraform.lock.hcl

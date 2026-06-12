@@ -8,7 +8,7 @@
 
 // Broker
 const int MQTT_PORT = 1883;
-const char* DEVICE_ID = "mistol_01"; // Mistol is a native tree from home that produces sweet red fruits used for medicine
+const char* DEVICE_ID = "yuyo_01";
 
 // Sensors
 #define DHT_PIN D2
@@ -41,7 +41,7 @@ void connectBroker() {
     if (mqtt.connect(DEVICE_ID, MQTT_USER, MQTT_PASS)){
       Serial.printf("Broker Conected!\n");
     } else {
-      Serial.printf("Failed to connect, retrying.\n");
+      Serial.printf("Failed to connect, rc=%d, retrying.\n", mqtt.state());
       delay(5000);
     }
   }
