@@ -90,7 +90,6 @@ module "nlb" {
   name_prefix        = var.name_prefix
   vpc_id             = aws_vpc.vpc_algarrobo.id
   public_subnet_id   = module.public_subnet.subnet_id
-  target_instance_id = var.aws_instance_id
   certificate_arn    = aws_acm_certificate.algarrobo[0].arn
   security_group_id  = module.public_security_group.id
 }

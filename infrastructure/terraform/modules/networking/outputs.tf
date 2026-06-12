@@ -5,3 +5,11 @@ output "private_network_interface_id" {
 output "public_network_interface_id" {
   value = module.public_subnet.network_interface_id
 }
+
+output "mqtt_target_group_arn" {
+  value = module.nlb[0].mqtt_target_group_arn
+}
+
+output "grafana_target_group_arn" {
+  value = module.nlb[0].grafana_target_group_arn
+}

@@ -45,12 +45,6 @@ resource "aws_lb_listener" "mqtts" {
   }
 }
 
-resource "aws_lb_target_group_attachment" "mqtt" {
-  target_group_arn = aws_lb_target_group.mqtt.arn
-  target_id        = var.target_instance_id
-  port             = 1883
-}
-
 # HTTPS listener — terminates TLS, forwards to Grafana
 resource "aws_lb_target_group" "grafana" {
   name               = "${var.name_prefix}-grafana"
@@ -80,10 +74,4 @@ resource "aws_lb_listener" "https" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.grafana.arn
   }
-}
-
-resource "aws_lb_target_group_attachment" "grafana" {
-  target_group_arn = aws_lb_target_group.grafana.arn
-  target_id        = var.target_instance_id
-  port             = 3000
 }
