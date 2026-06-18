@@ -11,6 +11,13 @@ Built as a hands-on learning project exploring Controlled Environment Agricultur
 
 Collect data on the environmental conditions these plants are exposed, visualize it in metric dashboards, setup alerts for quick actions (water plants, move to shade during harsh summer sun, protect from cold, etc) and overall monitor plants to increase their yield. In other words, build a gardening assistant for my balcony plants.
 
+### Visualization
+
+[![Grafana dashboard](docs/Grafana_dashboard.jpg)](docs/Grafana_dashboard.jpg)
+Screenshot of current Grafana dashboard.
+
+With the metrics pulled a lot of insights can be obtained. Like how humidity goes up at night and how it is proportionally inverse to temperature. Historics can show trends and off season changes. Maybe the real value is the data set itself. 
+
 ## Architecture
 
 Arduino ESP32 + Sensors -> WiFi -> Mosquitto (MQTT) -> Telegraf -> TimescaleDB -> Grafana
@@ -47,7 +54,7 @@ Balcony farm with yuyo_01 installed
 - Initial hardware assembly + sensor validation. Done.
 - WiFi + MQTT publishing from ESP32. Done.
 - Docker Compose stack (Mosquitto -> Telegraf -> TimescaleDB -> Grafana). Done.
-- Grafana dashboards with per plant alert thresholds. In progress.
+- Grafana dashboards with per plant alert thresholds. Done.
 - GitHub Actions CI/CD (for Docker builds)
 - IaC for cloud hosting Mosquitto (24/7 log capture). Done.
 - TLS + auth for MQTT broker exposed to internet. Done.
@@ -56,4 +63,19 @@ Balcony farm with yuyo_01 installed
 - Trigger automated watering for defined humidity thresholds
 - Camera module to track plant growth progress
 - Expand metrics captured, like soil pH
+- LLM integration to get insights on plants conditions.
 - More to add whenever I have more ideas
+
+## Design decisions
+
+A few choices worth explaining:
+
+NLB instead of ALB: I decided to have a single entry point for both yuyo_01 posting metrics and accessing the Grafana dashboard. Then let the LB route traffic. Also because MQTT is TCP native while ALBs only speak HTTP/HTTPS. NLBs handle raw TCP and can terminate TLS.
+
+TimescaleDB instead of plain Postgres: Sensor data is heavily time-series. TimescaleDB's hypertables handle this with automatic partitioning and faster query speed compared to Postgres.
+
+Private subnet + bastion host: No service runs in the public subnet. The NLB forwards traffic in. The bastion is the only way in for support.
+
+enable_private_subnet flag in Terraform: I wanted to leave the choice to have a single VM without bastion or NLB, which is a working and cheaper solution but with the tradeoff of security for having it exposed to the internet. Also becausse I just wanted to show I know how to host a service securely.
+
+Modularization on Terraform: I made this structure so I can reuse parameterized resources/ from different modules/, now currently consumed by a single solution algarrobo/. But in the future they could be consumed by other solutions as well, without duplicating code and having certain default configurations. Think of it like templates.

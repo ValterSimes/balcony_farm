@@ -17,14 +17,14 @@ resource "aws_lb" "nlb" {
 # MQTTS listener — terminates TLS, forwards TCP to Mosquitto
 resource "aws_lb_target_group" "mqtt" {
   name               = "${var.name_prefix}-mqtt"
-  port               = 1883
+  port               = 8883
   protocol           = "TCP"
   vpc_id             = var.vpc_id
   preserve_client_ip = false
 
   health_check {
     protocol = "TCP"
-    port     = 1883
+    port     = 8883
   }
 
   tags = {

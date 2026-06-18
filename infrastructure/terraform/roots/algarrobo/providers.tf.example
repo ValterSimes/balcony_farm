@@ -1,0 +1,8 @@
+terraform {
+  backend "s3" {
+    bucket  = "s3-bucket-name-goes-here"
+    key     = "balcony/tfstate.tf"
+    region  = "region-name"
+    profile = "aws-local-profile-to-access-the-bucket"
+  }
+}

@@ -4,11 +4,11 @@ volumes:
   grafana-data:
 
 services:
-  algarrobo: # Central native tree of the valey 
+  algarrobo: # Central native tree of the valley 
     image: eclipse-mosquitto:2.0.22
     container_name: algarrobo
     ports:
-      - "1883:1883"
+      - "8883:8883"
     volumes:
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
       - ./mosquitto/passwords.txt:/mosquitto/config/passwords.txt:ro
@@ -51,7 +51,15 @@ services:
       - "3000:3000"
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+      GF_SMTP_ENABLED: true
+      GF_SMTP_HOST: ${SMTP_HOST}
+      GF_SMTP_USER: ${SMTP_USER}
+      GF_SMTP_PASSWORD: ${SMTP_PASSWORD}
+      GF_SMTP_FROM_ADDRESS: ${SMTP_FROM}
     depends_on:
       - timescaledb
     volumes:
       - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards

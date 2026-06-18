@@ -1,0 +1,7 @@
+public_key            = "ssh public key for mqtt host"
+bastion_public_key    = "ssh public key for bastion host"
+ssh_allowlist         = "IP to allowlist ssh and dashboard access"
+vpc_cidr_block        = "10.0.0.0/16"
+enable_private_subnet = true
+dns_name              = "dns_name"
+availability_zone     = "region availability zone where to deploy"
