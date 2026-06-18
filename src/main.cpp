@@ -3,13 +3,20 @@
 #include <Wire.h>
 #include <BH1750.h>
 #include <WiFi.h>
-#include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 #include "date.h"
-#include "aws_root_ca.h"
+
+#if USE_TLS
+    #include <WiFiClientSecure.h>
+    #include "aws_root_ca.h"
+    WiFiClientSecure wifiClient;
+    const int MQTT_PORT = 8883;
+#else
+    WiFiClient wifiClient;
+    const int MQTT_PORT = 1883;
+#endif
 
 // Broker
-const int MQTT_PORT = 8883;
 const char* DEVICE_ID = "yuyo_01";
 
 // Sensors
@@ -20,7 +27,6 @@ const char* DEVICE_ID = "yuyo_01";
 
 DHT tempHumSensor(DHT_PIN, DHT_TYPE);
 BH1750 lightSensor;
-WiFiClientSecure wifiClient;
 PubSubClient mqtt(wifiClient);
 
 // Publish schedule
@@ -57,7 +63,9 @@ void setup() {
 
   connectWiFi();
   syncTime();
-  wifiClient.setCACert(AWS_ROOT_CA);
+  #if USE_TLS
+      wifiClient.setCACert(AWS_ROOT_CA);
+  #endif
   mqtt.setServer(MQTT_HOST, MQTT_PORT);
   connectBroker();
 }
