@@ -3,10 +3,10 @@
 #include <Wire.h>
 #include <BH1750.h>
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 #include "date.h"
-
-#include <WiFiClientSecure.h>
+#include "aws_root_ca.h"
 
 // Broker
 const int MQTT_PORT = 8883;
@@ -57,7 +57,7 @@ void setup() {
 
   connectWiFi();
   syncTime();
-  wifiClient.setInsecure();
+  wifiClient.setCACert(AWS_ROOT_CA);
   mqtt.setServer(MQTT_HOST, MQTT_PORT);
   connectBroker();
 }
