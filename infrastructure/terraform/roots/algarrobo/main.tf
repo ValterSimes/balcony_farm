@@ -34,12 +34,12 @@ module "networking" {
   dns_name              = var.dns_name
   availability_zone     = var.availability_zone
 public_sg_rules = var.enable_private_subnet ? [
-    { type = "ingress", from_port = 8883, to_port = 8883, protocol = "tcp", cidr_blocks = ["0.0.0.0/0"] },
+    { type = "ingress", from_port = 8883, to_port = 8883, protocol = "tcp", cidr_blocks = [var.ssh_allowlist] },
     { type = "ingress", from_port = 443,  to_port = 443,  protocol = "tcp", cidr_blocks = [var.ssh_allowlist] },
     { type = "ingress", from_port = 22,   to_port = 22,   protocol = "tcp", cidr_blocks = [var.ssh_allowlist] },
     { type = "egress",  from_port = 0,    to_port = 0,    protocol = "-1",  cidr_blocks = ["0.0.0.0/0"] }
   ] : [
-    { type = "ingress", from_port = 1883, to_port = 1883, protocol = "tcp", cidr_blocks = ["0.0.0.0/0"] },
+    { type = "ingress", from_port = 1883, to_port = 1883, protocol = "tcp", cidr_blocks = [var.ssh_allowlist] },
     { type = "ingress", from_port = 3000, to_port = 3000, protocol = "tcp", cidr_blocks = [var.ssh_allowlist] },
     { type = "ingress", from_port = 22,   to_port = 22,   protocol = "tcp", cidr_blocks = [var.ssh_allowlist] },
     { type = "egress",  from_port = 0,    to_port = 0,    protocol = "-1",  cidr_blocks = ["0.0.0.0/0"] }
