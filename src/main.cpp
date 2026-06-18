@@ -6,8 +6,10 @@
 #include <PubSubClient.h>
 #include "date.h"
 
+#include <WiFiClientSecure.h>
+
 // Broker
-const int MQTT_PORT = 1883;
+const int MQTT_PORT = 8883;
 const char* DEVICE_ID = "yuyo_01";
 
 // Sensors
@@ -18,7 +20,7 @@ const char* DEVICE_ID = "yuyo_01";
 
 DHT tempHumSensor(DHT_PIN, DHT_TYPE);
 BH1750 lightSensor;
-WiFiClient wifiClient;
+WiFiClientSecure wifiClient;
 PubSubClient mqtt(wifiClient);
 
 // Publish schedule
@@ -55,6 +57,7 @@ void setup() {
 
   connectWiFi();
   syncTime();
+  wifiClient.setInsecure();
   mqtt.setServer(MQTT_HOST, MQTT_PORT);
   connectBroker();
 }
