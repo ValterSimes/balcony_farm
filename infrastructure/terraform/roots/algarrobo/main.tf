@@ -23,7 +23,7 @@ resource "aws_lb_target_group_attachment" "mqtt" {
   count                   = var.enable_private_subnet ? 1 : 0
   target_group_arn = module.networking.mqtt_target_group_arn
   target_id        = module.compute.aws_instance_id
-  port             = 1883
+  port             = 8883
 }
 
 module "networking" {
