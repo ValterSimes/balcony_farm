@@ -2,9 +2,9 @@ name: Firmware Build
 
 on:
   pull_request:
-    # paths:
-    #   - 'src/**'
-    #   - 'platformio.ini'
+    paths:
+      - 'src/**'
+      - 'platformio.ini'
 
 jobs:
   build:
