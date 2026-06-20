@@ -2,9 +2,9 @@ name: Firmware Build
 
 on:
   pull_request:
-    paths:
-      - 'src/**'
-      - 'platformio.ini'
+    # paths:
+    #   - 'src/**'
+    #   - 'platformio.ini'
 
 jobs:
   build:
@@ -31,8 +31,8 @@ jobs:
           mqtt_pass = test
           EOF
 
-      - name: Build production
-        run: pio run -e production
+      - name: Build arduino_nano_esp32
+        run: pio run -e arduino_nano_esp32
 
       - name: Build local
         run: pio run -e local
