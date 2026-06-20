@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Valter Simes
+// Licensed under the PolyForm Noncommercial License 1.0.0
+// See LICENSE file at the repo root for full terms.
+
 data "aws_ami" "ubuntu" {
   most_recent = true
 

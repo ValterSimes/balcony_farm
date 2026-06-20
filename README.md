@@ -13,7 +13,7 @@ Collect data on the environmental conditions these plants are exposed, visualize
 
 ### Visualization
 
-[![Grafana dashboard](docs/Grafana_dashboard.jpg)](docs/Grafana_dashboard.jpg)
+[![Grafana dashboard](docs/Grafana_dashboard.jpg)](docs/Grafana_dashboard.jpeg)
 Screenshot of current Grafana dashboard.
 
 With the metrics pulled a lot of insights can be obtained. Like how humidity goes up at night and how it is proportionally inverse to temperature. Historics can show trends and off season changes. Maybe the real value is the data set itself. 
@@ -34,11 +34,11 @@ Arduino ESP32 + Sensors -> WiFi -> Mosquitto (MQTT) -> Telegraf -> TimescaleDB -
 
 Yuyo_01 in all its glory with Ikea tupper cover case, it can be then hermetically sealed against weather and ants...
 
-![Breadboard wiring](docs/breadboard-wiring.jpg)
+![Breadboard wiring](docs/breadboard-wiring.jpeg)
 
 Balcony farm with yuyo_01 installed
 
-![ESP32 with sensors](docs/esp32-setup.jpg)
+![ESP32 with sensors](docs/esp32-setup.jpeg)
 
 ### Software stack
 
@@ -70,12 +70,22 @@ Balcony farm with yuyo_01 installed
 
 A few choices worth explaining:
 
-NLB instead of ALB: I decided to have a single entry point for both yuyo_01 posting metrics and accessing the Grafana dashboard. Then let the LB route traffic. Also because MQTT is TCP native while ALBs only speak HTTP/HTTPS. NLBs handle raw TCP and can terminate TLS.
+NLB instead of ALB: Two reasons. First I decided to have a single entry point for both yuyo_01 posting metrics and accessing the Grafana dashboard to keep the architecture simple. Then let the LB route traffic. Second, because MQTT is TCP native while ALBs only speak HTTP/HTTPS. NLBs handle raw TCP and can terminate TLS.
 
 TimescaleDB instead of plain Postgres: Sensor data is heavily time-series. TimescaleDB's hypertables handle this with automatic partitioning and faster query speed compared to Postgres.
 
 Private subnet + bastion host: No service runs in the public subnet. The NLB forwards traffic in. The bastion is the only way in for support.
 
-enable_private_subnet flag in Terraform: I wanted to leave the choice to have a single VM without bastion or NLB, which is a working and cheaper solution but with the tradeoff of security for having it exposed to the internet. Also becausse I just wanted to show I know how to host a service securely.
+enable_private_subnet flag in Terraform: I wanted to leave the choice to have a single VM without bastion or NLB, which is a working and cheaper solution but with the tradeoff of security for having it exposed to the internet. Showing how to host a service securely.
 
 Modularization on Terraform: I made this structure so I can reuse parameterized resources/ from different modules/, now currently consumed by a single solution algarrobo/. But in the future they could be consumed by other solutions as well, without duplicating code and having certain default configurations. Think of it like templates.
+
+## License & usage
+
+The source is available for reading, learning, evaluating, and personal/educational use under the [PolyForm Noncommercial License](LICENSE).
+
+I'm sharing this publicly because portfolio transparency matters and because I think the patterns here are interesting to discuss. 
+
+Happy to chat about the design, answer questions, or hear feedback, just open an issue or reach out on LinkedIn!
+
+Copyright © 2026 Valter Simes
