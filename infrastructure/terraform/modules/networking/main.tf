@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Valter Simes
+// Licensed under the PolyForm Noncommercial License 1.0.0
+// See LICENSE file at the repo root for full terms.
+
 resource "aws_vpc" "vpc_algarrobo" {
   cidr_block = var.cidr_block
 
@@ -134,8 +138,8 @@ module "private_security_group" {
   sg_rules = [
     {
       type        = "ingress"
-      from_port   = 8883
-      to_port     = 8883
+      from_port   = 1883
+      to_port     = 1883
       protocol    = "tcp"
       cidr_blocks = [module.public_subnet.cidr_block]
     },
