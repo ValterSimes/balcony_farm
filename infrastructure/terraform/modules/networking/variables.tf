@@ -10,17 +10,17 @@ variable "public_sg_rules" {
 }
 
 variable "name_prefix" {
-  type = string
+  type        = string
   description = "Name prefix for all resources"
 }
 
 variable "cidr_block" {
-  type = string
+  type        = string
   description = "CIDR block for the VPC, parameterized so not to conflict with other VPCs"
 }
 
 variable "enable_private_subnet" {
-  type = bool
+  type        = bool
   description = "Flag to host services in a private subnet as good practice, behind a public subnet and NLB"
 }
 

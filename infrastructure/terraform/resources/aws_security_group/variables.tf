@@ -1,10 +1,10 @@
 variable "name_prefix" {
-  type = string
+  type        = string
   description = "Name prefix for all resources"
 }
 
 variable "vpc_id" {
-  type = string
+  type        = string
   description = "VPC id where to deploy SGs"
 }
 
@@ -20,6 +20,6 @@ variable "sg_rules" {
 }
 
 variable "description" {
-  type = string
+  type        = string
   description = "Short description of the SG purpose"
 }
