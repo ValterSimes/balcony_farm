@@ -10,6 +10,7 @@
 #include <PubSubClient.h>
 #include "date.h"
 
+// TLS check
 #if USE_TLS
     #include <WiFiClientSecure.h>
     #include "aws_root_ca.h"

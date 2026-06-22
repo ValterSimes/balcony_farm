@@ -1,0 +1,38 @@
+name: Firmware Build
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'platformio.ini'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PlatformIO
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Create test secrets
+        run: |
+          cat > secrets.ini << 'EOF'
+          [secrets]
+          wifi_ssid = test
+          wifi_pass = test
+          mqtt_host = test.example.com
+          mqtt_user = test
+          mqtt_pass = test
+          EOF
+
+      - name: Build arduino_nano_esp32
+        run: pio run -e arduino_nano_esp32
+
+      - name: Build local
+        run: pio run -e local
