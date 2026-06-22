@@ -13,7 +13,7 @@ Collect data on the environmental conditions these plants are exposed, visualize
 
 ### Visualization
 
-[![Grafana dashboard](docs/Grafana_dashboard.jpeg)](docs/Grafana_dashboard.jpeg)
+[![Grafana dashboard](docs/Grafana-dashboard.jpeg)](docs/Grafana-dashboard.jpeg)
 Screenshot of current Grafana dashboard.
 
 With the metrics pulled a lot of insights can be obtained. Like how humidity goes up at night and how it is proportionally inverse to temperature. Historics can show trends and off season changes. Maybe the real value is the data set itself. 
