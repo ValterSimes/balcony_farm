@@ -89,13 +89,13 @@ resource "aws_acm_certificate_validation" "algarrobo" {
 }
 
 module "nlb" {
-  count              = var.enable_private_subnet ? 1 : 0
-  source             = "../../resources/aws_nlb"
-  name_prefix        = var.name_prefix
-  vpc_id             = aws_vpc.vpc_algarrobo.id
-  public_subnet_id   = module.public_subnet.subnet_id
-  certificate_arn    = aws_acm_certificate.algarrobo[0].arn
-  security_group_id  = module.public_security_group.id
+  count             = var.enable_private_subnet ? 1 : 0
+  source            = "../../resources/aws_nlb"
+  name_prefix       = var.name_prefix
+  vpc_id            = aws_vpc.vpc_algarrobo.id
+  public_subnet_id  = module.public_subnet.subnet_id
+  certificate_arn   = aws_acm_certificate.algarrobo[0].arn
+  security_group_id = module.public_security_group.id
 }
 
 module "public_subnet" {
