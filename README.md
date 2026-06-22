@@ -55,7 +55,7 @@ Balcony farm with yuyo_01 installed
 - WiFi + MQTT publishing from ESP32. Done.
 - Docker Compose stack (Mosquitto -> Telegraf -> TimescaleDB -> Grafana). Done.
 - Grafana dashboards with per plant alert thresholds. Done.
-- GitHub Actions CI/CD (for Docker builds)
+- GitHub Actions CI/CD (for builds and tests) In progress.
 - IaC for cloud hosting Mosquitto (24/7 log capture). Done.
 - TLS + auth for MQTT broker exposed to internet. Done.
 - Migrate to K3s with Helm charts
