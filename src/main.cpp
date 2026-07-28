@@ -62,9 +62,14 @@ void connectBroker() {
 
 void setup() {
   Serial.begin(115200);
+  while (!Serial) delay(10);
+  delay(2000);
+  Serial.println("Starting...");
+
   tempHumSensor.begin();
   Wire.begin();
-  lightSensor.begin();
+  lightSensor.begin(BH1750::CONTINUOUS_HIGH_RES_MODE);
+  Serial.println("Sensors ready");
 
   connectWiFi();
   syncTime();
