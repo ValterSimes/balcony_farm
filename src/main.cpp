@@ -8,6 +8,7 @@
 #include <BH1750.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <esp_sleep.h>
 #include "date.h"
 
 // TLS check
@@ -35,34 +36,48 @@ BH1750 lightSensor;
 PubSubClient mqtt(wifiClient);
 
 // Publish schedule
-unsigned long lastPublish = 0;
-const unsigned long PUBLISH_INTERVAL = 30000;
+const uint64_t SLEEP_DURATION = 5 * 60 * 1000000;
+
+void sleepAndRetry(const char* reason) {
+    Serial.printf("%s. Sleeping 5 min...\n", reason);
+    esp_sleep_enable_timer_wakeup(SLEEP_DURATION);
+    esp_deep_sleep_start();
+}
 
 void connectWiFi() {
-  Serial.printf("Connecting to Wifi...\n");
+  Serial.println("Connecting to Wifi...");
   WiFi.begin(WIFI_SSID, WIFI_PASS);
-  while (WiFi.status() != WL_CONNECTED) {
+  int attempts = 0;
+  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
       delay(500);
       Serial.print(".");
+      attempts++;
+  }
+  if (WiFi.status() != WL_CONNECTED) {
+      sleepAndRetry("WiFi failed");
   }
   Serial.printf("Wifi Connected!\n");
 }
 
 void connectBroker() {
-  while (!mqtt.connected()){
-    Serial.printf("Connecting to Broker...\n");
-    if (mqtt.connect(DEVICE_ID, MQTT_USER, MQTT_PASS)){
-      Serial.printf("Broker Conected!\n");
-    } else {
-      Serial.printf("Failed to connect, rc=%d, retrying.\n", mqtt.state());
-      delay(5000);
+  int attempts = 0;
+  while (!mqtt.connected() && attempts < 5) {
+    Serial.println("Connecting to Broker...");
+    if (mqtt.connect(DEVICE_ID, MQTT_USER, MQTT_PASS)) {
+      Serial.println("Broker Connected!");
+      return;
     }
+      Serial.printf("Failed, rc=%d, retrying\n", mqtt.state());
+      delay(5000);
+      attempts++;
+    }
+  if (!mqtt.connected()) {
+    sleepAndRetry("Broker failed");
   }
 }
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial) delay(10);
   delay(2000);
   Serial.println("Starting...");
 
@@ -81,17 +96,19 @@ void setup() {
 }
 
 void loop() {
-  if (WiFi.status() != WL_CONNECTED) connectWiFi();
-  if (!mqtt.connected()) connectBroker();
-  mqtt.loop();
-
-  if (millis() - lastPublish >= PUBLISH_INTERVAL) {
-    lastPublish = millis();
+    // Read sensors
     float temp = tempHumSensor.readTemperature();
     float hum = tempHumSensor.readHumidity();
     float lux = lightSensor.readLightLevel();
     int soilStrawberry = analogRead(SOIL_STRAWBERRY);
     int soilChili = analogRead(SOIL_CHILI);
+
+    // Check readings
+    if (temp < -15 || temp > 50 || hum < 0 || hum > 100) {
+        Serial.println("Invalid reading, skipping");
+        sleepAndRetry("Bad sensor data");
+    }
+
     char payload[300];
     char topic[64];
 
@@ -102,6 +119,9 @@ void loop() {
 
     snprintf(topic, sizeof(topic), "farm/%s/sensors", DEVICE_ID);
     mqtt.publish(topic, payload);
-  }
-  delay(100);
+    Serial.printf("Published to %s\n", topic);
+
+    Serial.println("Sleeping 5 min...");
+    esp_sleep_enable_timer_wakeup(SLEEP_DURATION);
+    esp_deep_sleep_start();
 }
