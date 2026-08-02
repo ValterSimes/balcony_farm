@@ -121,7 +121,5 @@ void loop() {
     mqtt.publish(topic, payload);
     Serial.printf("Published to %s\n", topic);
 
-    Serial.println("Sleeping 5 min...");
-    esp_sleep_enable_timer_wakeup(SLEEP_DURATION);
-    esp_deep_sleep_start();
+    sleepAndRetry("Cycle complete");
 }
