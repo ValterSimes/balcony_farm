@@ -10,6 +10,7 @@
 #include <PubSubClient.h>
 #include <esp_sleep.h>
 #include "date.h"
+#include <U8g2lib.h>
 
 // TLS check
 #if USE_TLS
@@ -34,6 +35,9 @@ const char* DEVICE_ID = "yuyo_01";
 DHT tempHumSensor(DHT_PIN, DHT_TYPE);
 BH1750 lightSensor;
 PubSubClient mqtt(wifiClient);
+
+//Display
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C display(U8G2_R3, U8X8_PIN_NONE);
 
 // Publish schedule
 const uint64_t SLEEP_DURATION = 5 * 60 * 1000000;
@@ -86,6 +90,10 @@ void setup() {
   lightSensor.begin(BH1750::CONTINUOUS_HIGH_RES_MODE);
   Serial.println("Sensors ready");
 
+  display.begin();
+  display.setFont(u8g2_font_6x10_tr);
+  Serial.println("Display ready");
+
   connectWiFi();
   syncTime();
   #if USE_TLS
@@ -103,23 +111,55 @@ void loop() {
     int soilStrawberry = analogRead(SOIL_STRAWBERRY);
     int soilChili = analogRead(SOIL_CHILI);
 
+    // Battery %    
+    float voltage = analogRead(A2) * 2.0 * 3.3 / 4095.0;
+    int bat = constrain(map(voltage * 100, 300, 420, 0, 100), 0, 100);
+
     // Check readings
     if (temp < -15 || temp > 50 || hum < 0 || hum > 100) {
         Serial.println("Invalid reading, skipping");
         sleepAndRetry("Bad sensor data");
     }
 
-    char payload[300];
+    char payload[310];
     char topic[64];
 
     snprintf(payload, sizeof(payload),
         "{\"device\":\"%s\",\"timestamp\":\"%s\",\"temp\":%.1f,"
-        "\"humidity\":%.1f,\"lux\":%.1f,\"soil_strawberry\":%d,\"soil_chili\":%d}",
-        DEVICE_ID, getTimestamp(), temp, hum, lux, soilStrawberry, soilChili);
+        "\"humidity\":%.1f,\"lux\":%.1f,\"soil_strawberry\":%d,\"soil_chili\":%d,\"bat\":%d}",
+        DEVICE_ID, getTimestamp(), temp, hum, lux, soilStrawberry, soilChili, bat);
 
     snprintf(topic, sizeof(topic), "farm/%s/sensors", DEVICE_ID);
     mqtt.publish(topic, payload);
+    Serial.printf(payload);
     Serial.printf("Published to %s\n", topic);
+    
+    display.clearBuffer();
+    display.setFont(u8g2_font_7x14B_tr);
+    display.drawStr(0, 14, "YUYO_02");
+    
+    display.drawLine(0, 18, 64, 18);
+    
+    display.setFont(u8g2_font_6x10_tr);
+    char line[32];
+    
+    snprintf(line, sizeof(line), "T: %.1fC", temp);
+    display.drawStr(0, 32, line);
+    snprintf(line, sizeof(line), "H: %.0f%%", hum);
+    display.drawStr(0, 44, line);
+    snprintf(line, sizeof(line), "L: %.0f", lux);
+    display.drawStr(0, 56, line);
+    snprintf(line, sizeof(line), "S1: %d", soilStrawberry);
+    display.drawStr(0, 68, line);
+    snprintf(line, sizeof(line), "S2: %d", soilChili);
+    display.drawStr(0, 80, line);
+    snprintf(line, sizeof(line), "B: %d%%", bat);
+    display.drawStr(0, 92, line);
+  
+    display.sendBuffer();
+
+    delay(15000);
+    display.setPowerSave(1);
 
     sleepAndRetry("Cycle complete");
 }
