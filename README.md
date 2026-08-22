@@ -4,7 +4,7 @@ Real-time environmental monitoring system for balcony grown strawberries and chi
 
 ## What is this
 
-An IoT data pipeline that reads temperature, humidity, soil moisture, and light intensity from live plants on a balcony, pushes data over MQTT and visualizes everything in Grafana with alerting.
+An IoT data pipeline that reads temperature, humidity, soil moisture, and light intensity from live plants on a balcony, pushes telemetry data over MQTT and visualizes everything in Grafana with alerting.
 Built as a hands-on learning project exploring Controlled Environment Agriculture (CEA), from a humble balcony garden.
 
 ## Objective
@@ -26,19 +26,24 @@ Arduino ESP32 + Sensors -> WiFi -> Mosquitto (MQTT) -> Telegraf -> TimescaleDB -
 
 ### Hardware
 
+Yuyo_01 in all its glory with Ikea tupper cover case, solar fed battery and OLED display to show current metrics. It can be then hermetically sealed against weather and ants... And the best thing, it's hands-free, once it has sunlight it'll just work.
+
+Balcony farm with Yuyo_01 installed
+
+![ESP32 Setup](docs/esp32-setup-v01.jpeg)
+
+Yuyo_01 device close-up and wiring
+
+![ESP32 with sensors](docs/esp-32-wiring.jpeg)
+
 - Arduino ABX00083 Board Nano ESP32
 - Purecrea BH1750 GY-302 Digital Light Sensor
 - Purecrea DHT22 Temperature and Humidity Sensor
 - 2x Purecrea Capacitive soil moisture sensor V1.2
-- 10.000 mAh Battery 
-
-Yuyo_01 in all its glory with Ikea tupper cover case, it can be then hermetically sealed against weather and ants...
-
-![Breadboard wiring](docs/breadboard-wiring.jpeg)
-
-Balcony farm with yuyo_01 installed
-
-![ESP32 with sensors](docs/esp32-setup.jpeg)
+- DFRobot Solarpanel 6W
+- TC-13220688 Battery shield
+- Purecrea TP4056 Lithium LiPo Battery Charger
+- Ansmann Li-Ion battery 18650
 
 ### Software stack
 
@@ -58,8 +63,9 @@ Balcony farm with yuyo_01 installed
 - GitHub Actions CI/CD (for builds and tests) In progress.
 - IaC for cloud hosting Mosquitto (24/7 log capture). Done.
 - TLS + auth for MQTT broker exposed to internet. Done.
+- Feed battery with solar power. Done.
+- OLED Display showing current telemetry. Done.
 - Migrate to K3s with Helm charts
-- Feed battery with solar power
 - Trigger automated watering for defined humidity thresholds
 - Camera module to track plant growth progress
 - Expand metrics captured, like soil pH
@@ -70,7 +76,7 @@ Balcony farm with yuyo_01 installed
 
 A few choices worth explaining:
 
-NLB instead of ALB: Two reasons. First I decided to have a single entry point for both yuyo_01 posting metrics and accessing the Grafana dashboard to keep the architecture simple. Then let the LB route traffic. Second, because MQTT is TCP native while ALBs only speak HTTP/HTTPS. NLBs handle raw TCP and can terminate TLS.
+NLB instead of ALB: Two reasons. First I decided to have a single entry point for both Yuyo_01 posting metrics and accessing the Grafana dashboard to keep the architecture simple. Then let the LB route traffic. Second, because MQTT is TCP native while ALBs only speak HTTP/HTTPS. NLBs handle raw TCP and can terminate TLS.
 
 TimescaleDB instead of plain Postgres: Sensor data is heavily time-series. TimescaleDB's hypertables handle this with automatic partitioning and faster query speed compared to Postgres.
 
