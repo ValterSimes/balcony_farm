@@ -1,4 +1,53 @@
 {
+  "__inputs": [
+    {
+      "name": "DS_GRAFANA-POSTGRESQL-DATASOURCE",
+      "label": "grafana-postgresql-datasource",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "grafana-postgresql-datasource",
+      "pluginName": "PostgreSQL"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "bargauge",
+      "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "gauge",
+      "name": "Gauge",
+      "version": ""
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.6.0"
+    },
+    {
+      "type": "datasource",
+      "id": "grafana-postgresql-datasource",
+      "name": "PostgreSQL",
+      "version": "11.6.0-pre"
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
   "annotations": {
     "list": [
       {
@@ -18,13 +67,13 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": null,
   "links": [],
   "panels": [
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "afp1iqx4fqfi8a"
+        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
       },
       "fieldConfig": {
         "defaults": {
@@ -49,7 +98,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "temp"
+              "options": "Temperature"
             },
             "properties": [
               {
@@ -84,7 +133,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "humidity"
+              "options": "Humidity"
             },
             "properties": [
               {
@@ -146,7 +195,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "soil_strawberry"
+              "options": "Soil Strawberry"
             },
             "properties": [
               {
@@ -177,7 +226,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "soil_chili"
+              "options": "Soil Chili"
             },
             "properties": [
               {
@@ -209,7 +258,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 0
       },
@@ -237,7 +286,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  temp,\n  humidity,\n  lux,\n  ROUND(100.0 - ((soil_strawberry - 1000.0) / (3500.0 - 1000.0) * 100.0)) AS soil_strawberry,\n  ROUND(100.0 - ((soil_chili - 1000.0) / (3500.0 - 1000.0) * 100.0)) AS soil_chili\nFROM sensor_readings\nORDER BY time DESC\nLIMIT 1",
+          "rawSql": "SELECT\n  temp AS \"Temperature\",\n  humidity AS \"Humidity\",\n  lux AS \"Lux\",\n  ROUND(100.0 - ((soil_strawberry - 1000.0) / (3500.0 - 1000.0) * 100.0)) AS \"Soil Strawberry\",\n  ROUND(100.0 - ((soil_chili - 1000.0) / (3500.0 - 1000.0) * 100.0)) AS \"Soil Chili\"\nFROM sensor_readings\nORDER BY time DESC\nLIMIT 1",
           "refId": "A",
           "sql": {
             "columns": [
@@ -255,16 +304,124 @@
               }
             ],
             "limit": 50
+          },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
           }
         }
       ],
       "title": "Current status",
+      "transparent": true,
       "type": "stat"
     },
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "afp1iqx4fqfi8a"
+        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "light-red",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 10
+              },
+              {
+                "color": "green",
+                "value": 25
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 2,
+        "x": 6,
+        "y": 0
+      },
+      "id": 9,
+      "options": {
+        "displayMode": "lcd",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "vertical",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n\n  bat AS \"Battery\"\nFROM sensor_readings\nORDER BY time DESC\nLIMIT 1",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
+          }
+        }
+      ],
+      "title": "Battery",
+      "transparent": true,
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
       },
       "fieldConfig": {
         "defaults": {
@@ -333,7 +490,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  MIN(temp) AS temp_min,\n  MAX(temp) AS temp_max,\n  ROUND(AVG(temp)::numeric, 1) AS temp_avg\nFROM sensor_readings\nWHERE $__timeFilter(time)",
+          "rawSql": "SELECT\n  MIN(temp) AS \"Lowest\",\n  MAX(temp) AS \"Highest\",\n  ROUND(AVG(temp)::numeric, 1) AS \"Average\"\nFROM sensor_readings\nWHERE $__timeFilter(time)\n  AND temp BETWEEN -5 AND 50",
           "refId": "A",
           "sql": {
             "columns": [
@@ -351,16 +508,21 @@
               }
             ],
             "limit": 50
+          },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
           }
         }
       ],
-      "title": "Min/Max Temperature",
+      "title": "Min/Max Temperature (°C)",
+      "transparent": true,
       "type": "gauge"
     },
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "afp1iqx4fqfi8a"
+        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
       },
       "fieldConfig": {
         "defaults": {
@@ -373,19 +535,31 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "fillOpacity": 80,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
             "lineWidth": 1,
+            "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
             "thresholdsStyle": {
-              "mode": "off"
+              "mode": "area"
             }
           },
           "mappings": [],
@@ -393,17 +567,37 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "purple"
               },
               {
-                "color": "red",
-                "value": 80
+                "color": "light-orange",
+                "value": 1000
+              },
+              {
+                "color": "yellow",
+                "value": 3000
               }
             ]
           },
-          "unit": "percent"
+          "unit": "lux"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "lux"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "super-light-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -411,28 +605,19 @@
         "x": 16,
         "y": 0
       },
-      "id": 7,
+      "id": 2,
       "options": {
-        "barRadius": 0,
-        "barWidth": 0.97,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
         "tooltip": {
           "hideZeros": false,
           "mode": "single",
           "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
+        }
       },
       "pluginVersion": "11.6.0",
       "targets": [
@@ -440,7 +625,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  TO_CHAR(time_bucket('1 hour', time), 'HH24:00') AS hour,\n  ROUND(\n    COUNT(CASE WHEN lux > 2000 THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0)\n  ) AS sun_percentage\nFROM sensor_readings\nWHERE $__timeFilter(time)\nAND EXTRACT(HOUR FROM time) BETWEEN 6 AND 21\nGROUP BY time_bucket('1 hour', time)\nORDER BY time_bucket('1 hour', time)",
+          "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  ROUND(AVG(lux)) AS lux\nFROM sensor_readings\nWHERE $__timeFilter(time)\nGROUP BY time_bucket('5 minutes', time)\nORDER BY time",
           "refId": "A",
           "sql": {
             "columns": [
@@ -458,16 +643,21 @@
               }
             ],
             "limit": 50
+          },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
           }
         }
       ],
-      "title": "Sunlight per hour",
-      "type": "barchart"
+      "title": "Lux",
+      "transparent": true,
+      "type": "timeseries"
     },
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "afp1iqx4fqfi8a"
+        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
       },
       "fieldConfig": {
         "defaults": {
@@ -552,7 +742,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  ROUND(AVG(100.0 - ((soil_strawberry - 1000.0) / (3500.0 - 1000.0) * 100.0))) AS soil_strawberry,\n  ROUND(AVG(100.0 - ((soil_chili - 1000.0) / (3500.0 - 1000.0) * 100.0))) AS soil_chili\nFROM sensor_readings\nWHERE $__timeFilter(time)\nGROUP BY time_bucket('5 minutes', time)\nORDER BY time",
+          "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  ROUND(AVG(100.0 - ((soil_strawberry - 1000.0) / (3500.0 - 1000.0) * 100.0))) AS \"Soil Strawberry\",\n  ROUND(AVG(100.0 - ((soil_chili - 1000.0) / (3500.0 - 1000.0) * 100.0))) AS \"Soil Chili\"\nFROM sensor_readings\nWHERE $__timeFilter(time)\nGROUP BY time_bucket('5 minutes', time)\nORDER BY time",
           "refId": "A",
           "sql": {
             "columns": [
@@ -570,16 +760,21 @@
               }
             ],
             "limit": 50
+          },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
           }
         }
       ],
-      "title": "Soil humidity",
+      "title": "Soil Humidity",
+      "transparent": true,
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "afp1iqx4fqfi8a"
+        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
       },
       "fieldConfig": {
         "defaults": {
@@ -587,7 +782,7 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
+            "axisBorderShow": true,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -595,7 +790,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 4,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -603,7 +798,7 @@
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "linear",
+            "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -643,6 +838,28 @@
               {
                 "id": "custom.axisPlacement",
                 "value": "right"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Humidity"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-blue",
+                  "mode": "fixed"
+                }
               }
             ]
           }
@@ -674,7 +891,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  ROUND(AVG(temp)::numeric, 1) AS temp,\n  ROUND(AVG(humidity)::numeric, 1) AS humidity\nFROM sensor_readings\nWHERE $__timeFilter(time)\nGROUP BY time_bucket('5 minutes', time)\nORDER BY time",
+          "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  ROUND(AVG(temp)::numeric, 1) AS \"Temperature\",\n  ROUND(AVG(humidity)::numeric, 1) AS \"Humidity\"\nFROM sensor_readings\nWHERE $__timeFilter(time)\nGROUP BY time_bucket('5 minutes', time)\nORDER BY time",
           "refId": "A",
           "sql": {
             "columns": [
@@ -692,16 +909,21 @@
               }
             ],
             "limit": 50
+          },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
           }
         }
       ],
       "title": "Temperature & Humidity",
+      "transparent": true,
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "afp1iqx4fqfi8a"
+        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
       },
       "fieldConfig": {
         "defaults": {
@@ -709,15 +931,15 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
+            "axisBorderShow": true,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
+            "barWidthFactor": 0.9,
+            "drawStyle": "bars",
+            "fillOpacity": 27,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -725,7 +947,7 @@
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "smooth",
+            "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -738,7 +960,7 @@
               "mode": "none"
             },
             "thresholdsStyle": {
-              "mode": "area"
+              "mode": "off"
             }
           },
           "mappings": [],
@@ -746,19 +968,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "purple"
+                "color": "green"
               },
               {
-                "color": "light-orange",
-                "value": 1000
-              },
-              {
-                "color": "yellow",
-                "value": 3000
+                "color": "red",
+                "value": 80
               }
             ]
           },
-          "unit": "lux"
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -768,7 +986,124 @@
         "x": 16,
         "y": 8
       },
-      "id": 2,
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  time_bucket('1 hour', time) AS time,\n  ROUND(\n    COUNT(CASE WHEN lux > 2000 THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0)\n  ) AS sun_percentage\nFROM sensor_readings\nWHERE $__timeFilter(time)\n  AND EXTRACT(HOUR FROM time) BETWEEN 6 AND 21\nGROUP BY time_bucket('1 hour', time)\nORDER BY time_bucket('1 hour', time)",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
+          }
+        }
+      ],
+      "title": "Sunlight per hour",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": true,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 24,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 16
+      },
+      "id": 8,
       "options": {
         "legend": {
           "calcs": [],
@@ -788,7 +1123,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  ROUND(AVG(lux)) AS lux\nFROM sensor_readings\nWHERE $__timeFilter(time)\nGROUP BY time_bucket('5 minutes', time)\nORDER BY time",
+          "rawSql": "SELECT\n  time,\n  bat AS \"Battery %\"\nFROM sensor_readings\nWHERE $__timeFilter(time)\nORDER BY time",
           "refId": "A",
           "sql": {
             "columns": [
@@ -806,26 +1141,31 @@
               }
             ],
             "limit": 50
+          },
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${DS_GRAFANA-POSTGRESQL-DATASOURCE}"
           }
         }
       ],
-      "title": "Lux",
+      "title": "Battery",
+      "transparent": true,
       "type": "timeseries"
     }
   ],
-  "preload": false,
   "schemaVersion": 41,
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Balcony farm",
   "uid": "afp1j60unjxmof",
-  "version": 26
+  "version": 59,
+  "weekStart": ""
 }
