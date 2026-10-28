@@ -42,10 +42,10 @@ PubSubClient mqtt(wifiClient);
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C display(U8G2_R3, U8X8_PIN_NONE);
 
 // Publish schedule
-const uint64_t SLEEP_DURATION = 5 * 60 * 1000000;
+const uint64_t SLEEP_DURATION = 30 * 60 * 1000000;
 
 void sleepAndRetry(const char* reason) {
-    Serial.printf("%s. Sleeping 5 min...\n", reason);
+    Serial.printf("%s. Sleeping 30 min...\n", reason);
     esp_sleep_enable_timer_wakeup(SLEEP_DURATION);
 
     rtc_gpio_pulldown_en(BUTTON_PIN_GPIO);
